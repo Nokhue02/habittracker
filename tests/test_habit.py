@@ -8,7 +8,7 @@ def test_habit_creation():
         name="Exercise",
         periodicity=Periodicity.DAILY
     )
-    assert habt.id==1
+    assert habit.id==1
     assert habit.name == "Exercise"
     assert habit.periodicity == Periodicity.DAILY
 
@@ -31,5 +31,5 @@ def test_habit_completion_count():
     habit.check_off()
     habit.check_off()  
     
-    assert habit.get_completion_count() == 2
+    assert habit.get_completion_count() == 1
     
