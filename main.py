@@ -1,4 +1,4 @@
-from habittracker.cli import CLI
+from src.cli import CLI
 
 def main():
     cli = CLI()

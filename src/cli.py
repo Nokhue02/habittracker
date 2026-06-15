@@ -3,14 +3,14 @@ from src.habit_manager import HabitManager
 
 
 class CLI:
-	"""Simple CLI wrapper around HabitManager."""
+    """Simple CLI wrapper around HabitManager."""
 
-	def __init__(self):
-		self.manager = HabitManager()
+    def __init__(self):
+        self.manager = HabitManager()
 
-	def run(self):
+    def run(self):
         while True:
-            print("\n=== Habit Tracker ===")
+            print("=== Habit Tracker ===")
             print("1. View Habits")
             print("2. Add Habit")
             print("3. Complete Habit")
@@ -38,5 +38,4 @@ class CLI:
                 break
             else:
                 print("Invalid choice")
-	            break
 
