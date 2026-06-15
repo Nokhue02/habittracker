@@ -1,6 +1,6 @@
 import pytest
-from habit_analysis.habit import Habit
-from habit_analysis.periodicity import Periodicity
+from src.habit import Habit
+from src.periodicity import Periodicity
 
 def test_habit_creation():
     habit = Habit(
