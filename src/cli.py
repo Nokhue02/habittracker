@@ -1,5 +1,5 @@
 
-from habit_analysis.habit_manager import HabitManager
+from src.habit_manager import HabitManager
 
 
 class CLI:

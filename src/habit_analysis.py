@@ -1,4 +1,4 @@
-from periodicity import Periodicity
+from src.periodicity import Periodicity
 
 
 def get_all_habits(habits: list) -> list:

@@ -1,5 +1,5 @@
 from datetime import datetime
-from periodicity import Periodicity
+from src.periodicity import Periodicity
 
 
 class Habit:
