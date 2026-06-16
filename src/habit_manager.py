@@ -1,43 +1,59 @@
-from src.habit import Habit
-from src.periodicity import Periodicity
-
-
 class HabitManager:
-    """Manages the creation, deletion, completion, and listing of habit."""
-    
+    """Manages the creation, deletion, completion, and listing of habits."""
+
     def __init__(self):
         self.habits = []
-    
-    def add_habit(self, habit: Habit) -> None:
-        """Adds a new habit to the habit list."""
-        self.habits.append(habit)
 
-    def delete_habit(self, habit_id: int) -> None:
-        """Deletes a habit by its unique identifier."""
-        self.habits = [habit for habit in self.habits if habit.id != habit_id]
+    def add_habit(self, name):
+        if not name.strip():
+            print("Habit name cannot be empty.")
+            return
 
-    
-    def find_habit_by_id(self, habit_id: int):
-        """Finds and returns a habit by its unique identifier."""
-        for habit in self.habits:
-            if habit.id == habit_id:
-                return habit  
-        return None
+        self.habits.append({
+            "name": name,
+            "completed": False
+        })
+        print(f"Habit '{name}' added.")
+        
 
-    def complete_habit(self, habit_id: int) -> bool:
-        """Marks a habit as completed and returns True if the habit was found."""
-        habit = self.find_habit_by_id(habit_id)
-        if habit is None:
-            return False
+    def view_habits(self):
+        if not self.habits:
+            print("No habits found.")
+            return
 
-        habit.check_off()
-        return True
+        print("\n=== Your Habits ===")
+        for index, habit in enumerate(self.habits, start=1):
+            status = "Completed" if habit["completed"] else "Not completed"
+            print(f"{index}. {habit['name']} - {status}")
 
-    def get_all_habits(self) -> list:
-        """Returns a list of all current habits."""
-        return list(self.habits)
+    def complete_habit(self, habit_id: int):
+        if 1 <= habit_id <= len(self.habits):
+            self.habits[habit_id - 1]["completed"] = True
+            print(f"Habit '{self.habits[habit_id - 1]['name']}' completed.")
+            return True
 
-    
+        print("Invalid habit number.")
+        return False
 
-      
-    
+    def delete_habit(self, habit_id: int):
+        if 1 <= habit_id <= len(self.habits):
+            removed = self.habits.pop(habit_id - 1)
+            print(f"Habit '{removed['name']}' deleted.")
+            return True
+
+        print("Invalid habit number.")
+        return False
+
+    def analyse_habits(self):
+        if not self.habits:
+            print("No habits to analyse.")
+            return
+
+        total_habits = len(self.habits)
+        completed_habits = sum(1 for habit in self.habits if habit["completed"])
+        incomplete_habits = total_habits - completed_habits
+
+        print("\n=== Habit Analysis ===")
+        print(f"Total habits: {total_habits}")
+        print(f"Completed habits: {completed_habits}")
+        print(f"Incomplete habits: {incomplete_habits}")
