@@ -8,13 +8,13 @@ This is a Python-based habit tracking application. It allows users to create, de
 -delete habits
 -check off habits
 -view all habits
--store habit in JSON file
+-store habit in SQLite file
 -analyse habit streaks
 -filter habits by periodicity
 
 ##Technologies used
 -Python 3.7+
--JSON storage file
+-SQlite storage file
 -Command Line Interface
 -pytest for testing
 
