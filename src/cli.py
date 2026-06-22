@@ -1,3 +1,4 @@
+from src.periodicity import Periodicity
 from src.habit_manager import HabitManager
 
 
@@ -23,8 +24,47 @@ class CLI:
                 self.manager.view_habits()
 
             elif choice == "2":
+                
                 name = input("Habit name: ")
-                self.manager.add_habit(name)
+
+
+                print("\nChoose periodicity:")
+                print("1. Daily")
+                print("2. Weekly")
+                print("3. Monthly")
+
+
+                periodicity_choice = input(
+                   "Choice: "
+                )
+
+
+                if periodicity_choice == "1":
+
+                    periodicity = Periodicity.DAILY
+
+
+                elif periodicity_choice == "2":
+
+                    periodicity = Periodicity.WEEKLY
+
+
+                elif periodicity_choice == "3":
+
+                    periodicity = Periodicity.MONTHLY
+
+
+                else:
+
+                    print("Invalid periodicity.")
+                    continue
+
+
+
+                self.manager.add_habit(
+                    name,
+                    periodicity
+                )
 
             elif choice == "3":
                 try:

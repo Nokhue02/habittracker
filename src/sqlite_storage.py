@@ -9,7 +9,9 @@ from src.periodicity import Periodicity
 class SQLiteStorage:
     """Handles saving and loading habits using SQLite."""
 
+
     def __init__(self, db_path="data/habittracker.db"):
+
         self.db_path = db_path
 
         Path(self.db_path).parent.mkdir(
@@ -20,63 +22,113 @@ class SQLiteStorage:
         self._create_database()
 
 
+
+    def _get_connection(self):
+
+        connection = sqlite3.connect(
+            self.db_path
+        )
+
+        connection.execute(
+            "PRAGMA foreign_keys = ON"
+        )
+
+        return connection
+
+
+
     def _create_database(self):
 
-        with sqlite3.connect(self.db_path) as connection:
+        with self._get_connection() as connection:
 
             cursor = connection.cursor()
 
+
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS habits (
+
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+
                 name TEXT NOT NULL,
+
                 periodicity TEXT NOT NULL,
+
                 created_at TEXT NOT NULL
+
             )
             """)
+
 
 
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS completions (
+
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                habit_id INTEGER,
+
+                habit_id INTEGER NOT NULL,
+
                 completed_at TEXT NOT NULL,
 
+
                 FOREIGN KEY(habit_id)
+
                 REFERENCES habits(id)
+
                 ON DELETE CASCADE
+
             )
             """)
+
+
 
             connection.commit()
 
 
+
+
     def save_habit(self, habit: Habit):
 
-        with sqlite3.connect(self.db_path) as connection:
+        with self._get_connection() as connection:
 
             cursor = connection.cursor()
 
 
             cursor.execute(
+
                 """
                 INSERT INTO habits
-                (name, periodicity, created_at)
+
+                (
+                    name,
+                    periodicity,
+                    created_at
+                )
 
                 VALUES (?, ?, ?)
+
                 """,
 
                 (
+
                     habit.name,
+
                     habit.periodicity.value,
+
                     habit.created_at.isoformat()
+
                 )
+
             )
 
 
             habit.id = cursor.lastrowid
 
+
             connection.commit()
+
+
+
+
 
 
     def load_habits(self):
@@ -84,30 +136,40 @@ class SQLiteStorage:
         habits = []
 
 
-        with sqlite3.connect(self.db_path) as connection:
+        with self._get_connection() as connection:
 
             cursor = connection.cursor()
 
 
             cursor.execute(
+
                 """
-                SELECT id,
+                SELECT
+
+                id,
                 name,
                 periodicity,
                 created_at
 
+
                 FROM habits
+
+                ORDER BY id
+
                 """
+
             )
 
 
             rows = cursor.fetchall()
 
 
+
             for row in rows:
 
 
                 cursor.execute(
+
                     """
                     SELECT completed_at
 
@@ -115,21 +177,33 @@ class SQLiteStorage:
 
                     WHERE habit_id = ?
 
+                    ORDER BY completed_at
+
                     """,
+
                     (row[0],)
+
                 )
 
 
                 completion_rows = cursor.fetchall()
 
 
+
                 completed_dates = [
+
                     datetime.fromisoformat(
-                        c[0]
+
+                        item[0]
+
                     ).date()
 
-                    for c in completion_rows
+
+                    for item in completion_rows
+
                 ]
+
+
 
 
                 habit = Habit(
@@ -152,7 +226,10 @@ class SQLiteStorage:
                 habits.append(habit)
 
 
+
         return habits
+
+
 
 
 
@@ -163,9 +240,10 @@ class SQLiteStorage:
     ):
 
 
-        with sqlite3.connect(self.db_path) as connection:
+        with self._get_connection() as connection:
 
             cursor = connection.cursor()
+
 
 
             cursor.execute(
@@ -173,15 +251,21 @@ class SQLiteStorage:
                 """
                 INSERT INTO completions
 
-                (habit_id, completed_at)
+                (
+                    habit_id,
+                    completed_at
+                )
 
                 VALUES (?,?)
 
                 """,
 
                 (
+
                     habit_id,
+
                     completed_at.isoformat()
+
                 )
 
             )
@@ -191,11 +275,100 @@ class SQLiteStorage:
 
 
 
-    def delete_habit(self, habit_id):
 
-        with sqlite3.connect(self.db_path) as connection:
+
+
+    def completion_exists(
+        self,
+        habit_id,
+        completion_date
+    ):
+
+        with self._get_connection() as connection:
 
             cursor = connection.cursor()
+
+
+
+            cursor.execute(
+
+                """
+                SELECT 1
+
+                FROM completions
+
+                WHERE habit_id = ?
+
+                AND DATE(completed_at) = ?
+
+                """,
+
+                (
+
+                    habit_id,
+
+                    completion_date
+
+                )
+
+            )
+
+
+
+            return cursor.fetchone() is not None
+
+
+
+
+
+
+
+    def habit_exists(
+        self,
+        habit_id
+    ):
+
+
+        with self._get_connection() as connection:
+
+            cursor = connection.cursor()
+
+
+
+            cursor.execute(
+
+                """
+                SELECT 1
+
+                FROM habits
+
+                WHERE id = ?
+
+                """,
+
+                (habit_id,)
+
+            )
+
+
+            return cursor.fetchone() is not None
+
+
+
+
+
+
+
+    def delete_habit(
+        self,
+        habit_id
+    ):
+
+
+        with self._get_connection() as connection:
+
+            cursor = connection.cursor()
+
 
 
             cursor.execute(

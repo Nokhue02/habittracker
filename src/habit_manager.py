@@ -5,7 +5,6 @@ from src.periodicity import Periodicity
 from src.sqlite_storage import SQLiteStorage
 
 
-
 class HabitManager:
 
     def __init__(self):
@@ -16,7 +15,7 @@ class HabitManager:
 
 
 
-    def add_habit(self, name):
+    def add_habit(self, name, periodicity):
 
         if not name.strip():
 
@@ -28,20 +27,23 @@ class HabitManager:
 
             id=None,
 
-            name=name,
+            name=name.strip(),
 
-            periodicity=Periodicity.DAILY
+            periodicity=periodicity,
+
+            created_at=datetime.now()
 
         )
 
 
         self.storage.save_habit(habit)
 
+
         self.habits.append(habit)
 
 
         print(
-            f"Habit '{name}' added."
+            f"Habit '{name}' added as {periodicity.value}."
         )
 
 
@@ -77,16 +79,15 @@ class HabitManager:
             print(
 
                 f"{habit.id}. "
-                f"{habit.name} - "
+                f"{habit.name} "
+                f"({habit.periodicity.value}) - "
                 f"{status}"
 
             )
 
 
 
-
     def complete_habit(self, habit_id):
-
 
         habit = next(
 
@@ -103,11 +104,30 @@ class HabitManager:
         if habit is None:
 
             print("Invalid habit.")
+
+            return False
+
+
+
+        today = datetime.now().date().isoformat()
+
+
+
+        if self.storage.completion_exists(
+            habit.id,
+            today
+        ):
+
+            print(
+                "Habit already completed today."
+            )
+
             return False
 
 
 
         habit.check_off()
+
 
 
         self.storage.save_completion(
@@ -130,8 +150,14 @@ class HabitManager:
 
 
 
-
     def delete_habit(self, habit_id):
+
+        if not self.storage.habit_exists(habit_id):
+
+            print("Invalid habit.")
+
+            return False
+
 
 
         self.storage.delete_habit(habit_id)
@@ -142,13 +168,19 @@ class HabitManager:
 
         print("Habit deleted.")
 
+        return True
+
 
 
 
     def analyse_habits(self):
+
         from src.habit_analysis import (
-        calculate_longest_streak_overall,
-        get_current_streaks
+
+            calculate_longest_streak_overall,
+
+            get_current_streaks
+
         )
 
 
@@ -156,56 +188,34 @@ class HabitManager:
 
 
         if not self.habits:
+
             print("No habits to analyse.")
+
             return
 
 
 
-        total = len(self.habits)
-
-
-        completed = sum(
-        1
-        for habit in self.habits
-        if habit.get_completion_count() > 0
-        )
-
-
         print("\n=== Habit Analysis ===")
 
-        print(
-        f"Total habits: {total}"
-        )
 
         print(
-        f"Completed habits: {completed}"
-        )
-
-        print(
-        f"Incomplete habits: {total-completed}"
-        )
-
-
-        longest = calculate_longest_streak_overall(
-        self.habits
+            f"Total habits: {len(self.habits)}"
         )
 
 
         print(
-        f"\nLongest streak overall: {longest} days"
+            f"Longest streak: "
+            f"{calculate_longest_streak_overall(self.habits)} days"
         )
+
 
 
         print("\nCurrent streaks:")
 
 
-        streaks = get_current_streaks(
-        self.habits
-        )
+        for item in get_current_streaks(self.habits):
 
-
-        for item in streaks:
             print(
-            f"{item['habit']}: "
-            f"{item['streak']} days"
+                f"{item['habit']}: "
+                f"{item['streak']} days"
             )
