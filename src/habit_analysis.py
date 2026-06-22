@@ -1,28 +1,166 @@
+from datetime import timedelta
 from src.periodicity import Periodicity
 
 
 def get_all_habits(habits: list) -> list:
-    """Returns a list of all habits"""
+    """
+    Returns all habits.
+    """
     return habits
 
 
-def filter_habits_by_periodicity(habits: list, periodicity: Periodicity) -> list:
-    """Filters habits by periodicity"""
-    return list(filter(lambda habit: habit.periodicity == periodicity, habits))
+
+def filter_habits_by_periodicity(
+    habits: list,
+    periodicity: Periodicity
+) -> list:
+    """
+    Returns habits matching a periodicity.
+    """
+
+    return [
+        habit
+        for habit in habits
+        if habit.periodicity == periodicity
+    ]
+
 
 
 def calculate_longest_streak_for_habit(habit) -> int:
-    """Calculates the longest streak for a habit"""
-    return habit.get_completion_count()  # Placeholder implementation, replace with actual streak calculation logic
+    """
+    Calculates the longest consecutive completion streak.
+    """
+
+    if not habit.completed_dates:
+        return 0
 
 
-def calculate_longest_streak_overall(habits: list) -> int:
-    """Calculates the longest streak overall across all habits"""
-    streaks = map(lambda habit: calculate_longest_streak_for_habit(habit), habits)
-    return max(streaks, default=0)
+    dates = sorted(
+        habit.completed_dates
+    )
 
 
-def get_current_streaks(habits: list) -> list:
-    """Returns a list of the current streak for each habit"""
-    return list(map(lambda habit: calculate_longest_streak_for_habit(habit), habits))
+    longest_streak = 1
 
+    current_streak = 1
+
+
+    for i in range(1, len(dates)):
+
+
+        difference = (
+            dates[i] - dates[i-1]
+        )
+
+
+        if difference == timedelta(days=1):
+
+            current_streak += 1
+
+
+        else:
+
+            current_streak = 1
+
+
+
+        if current_streak > longest_streak:
+
+            longest_streak = current_streak
+
+
+
+    return longest_streak
+
+
+
+
+def calculate_current_streak_for_habit(habit) -> int:
+    """
+    Calculates the current active streak.
+    """
+
+    if not habit.completed_dates:
+
+        return 0
+
+
+
+    dates = sorted(
+        habit.completed_dates,
+        reverse=True
+    )
+
+
+    streak = 1
+
+
+    for i in range(len(dates)-1):
+
+
+        difference = (
+            dates[i] - dates[i+1]
+        )
+
+
+        if difference == timedelta(days=1):
+
+            streak += 1
+
+
+        else:
+
+            break
+
+
+
+    return streak
+
+
+
+
+def calculate_longest_streak_overall(
+    habits: list
+) -> int:
+    """
+    Returns the highest streak among all habits.
+    """
+
+
+    if not habits:
+
+        return 0
+
+
+
+    return max(
+
+        calculate_longest_streak_for_habit(habit)
+
+        for habit in habits
+
+    )
+
+
+
+
+def get_current_streaks(
+    habits: list
+) -> list:
+    """
+    Returns current streak for every habit.
+    """
+
+
+    return [
+
+        {
+            "habit": habit.name,
+
+            "streak": calculate_current_streak_for_habit(habit)
+
+        }
+
+        for habit in habits
+
+    ]
