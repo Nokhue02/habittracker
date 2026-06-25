@@ -9,7 +9,7 @@ def generate_test_data():
     
     # Define 5 Predefined Habits (Daily & Weekly)
     predefined_habits = [
-        {"name": "Drink 2L Water", "periodicity": Periodicity.DAILY},
+        {"name": "Pray 3 times", "periodicity": Periodicity.DAILY},
         {"name": "Read 10 Pages", "periodicity": Periodicity.DAILY},
         {"name": "Morning Stretch", "periodicity": Periodicity.DAILY},
         {"name": "Grocery Shopping", "periodicity": Periodicity.WEEKLY},
